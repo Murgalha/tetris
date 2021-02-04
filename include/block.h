@@ -17,6 +17,7 @@ public:
 	void move_right();
 	void move_left();
 	void new_position(uint8_t, uint8_t);
+	std::pair<uint8_t, uint8_t> position();
 private:
 	std::pair<uint8_t, uint8_t> _position;
 	Color _color;

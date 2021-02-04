@@ -16,11 +16,14 @@ Block::~Block() {
 
 }
 
+std::pair<uint8_t, uint8_t> Block::position() {
+	return this->_position;
+}
+
 void Block::render(SDL_Renderer *renderer, Grid *grid) {
 	auto pos = this->_position;
 	auto pixels = grid->to_pixels(pos.first, pos.second);
 	Color old_color;
-	Color grey(100, 100, 100, 255);
 
 	SDL_GetRenderDrawColor(renderer,
                            &old_color.r,
@@ -29,10 +32,10 @@ void Block::render(SDL_Renderer *renderer, Grid *grid) {
                            &old_color.a);
 
 	SDL_SetRenderDrawColor(renderer,
-						   grey.r,
-						   grey.g,
-						   grey.b,
-						   grey.a);
+						   this->_color.r,
+						   this->_color.g,
+						   this->_color.b,
+						   this->_color.a);
 
 	SDL_Rect r;
 	r.x = pixels.first;

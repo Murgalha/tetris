@@ -1,3 +1,4 @@
+#include <iostream>
 #include "tetris.h"
 #include "block.h"
 #include "color.h"
@@ -5,6 +6,8 @@
 Tetris::Tetris() {
 	this->_end = false;
 	this->_grid = std::unique_ptr<Grid>(new Grid(10, 20, 1));
+	this->current_tetromino = std::unique_ptr<Tetromino>(new Tetromino(I));
+	this->_timer = SDL_AddTimer(1000, this->_gravity_callback, this);
 }
 
 Tetris::~Tetris() {
@@ -17,6 +20,17 @@ void Tetris::update() {
 		switch(e.type) {
 		case SDL_QUIT:
 			this->_end = true;
+		case SDL_KEYDOWN:
+			switch(e.key.keysym.sym) {
+			case SDLK_RIGHT:
+				this->current_tetromino->
+					check_and_move(Right, this->_grid.get());
+				break;
+			case SDLK_LEFT:
+				this->current_tetromino->
+					check_and_move(Left, this->_grid.get());
+				break;
+			}
 		default:
 			break;
 		}
@@ -25,6 +39,7 @@ void Tetris::update() {
 
 void Tetris::render(SDL_Renderer *renderer) {
 	this->_draw_border(renderer);
+	this->current_tetromino->render(renderer, this->_grid.get());
 }
 
 bool Tetris::has_ended() {
@@ -53,4 +68,11 @@ void Tetris::_draw_border(SDL_Renderer *renderer) {
 		b2.render(renderer, this->_grid.get());
 		b2.move_down();
 	}
+}
+
+// TODO: Pass only needed parameters, not whole Tetris *
+Uint32 Tetris::_gravity_callback(Uint32 interval, void *param) {
+	auto t = (Tetris *) param;
+	t->current_tetromino->check_and_move(Down, t->_grid.get());
+	return interval;
 }
