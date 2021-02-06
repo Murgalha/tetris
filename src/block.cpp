@@ -6,7 +6,7 @@ Block::Block() {
 	this->_size = 0;
 }
 
-Block::Block(uint8_t x, uint8_t y, Color c, int s) {
+Block::Block(int8_t x, int8_t y, Color c, int s) {
 	this->_position = std::make_pair(x, y);
 	this->_color = c;
 	this->_size = s;
@@ -16,7 +16,7 @@ Block::~Block() {
 
 }
 
-std::pair<uint8_t, uint8_t> Block::position() {
+std::pair<int8_t, int8_t> Block::position() {
 	return this->_position;
 }
 
@@ -62,6 +62,6 @@ void Block::move_left() {
 	this->_position.first -= 1;
 }
 
-void Block::new_position(uint8_t x, uint8_t y) {
+void Block::new_position(int8_t x, int8_t y) {
 	this->_position = std::make_pair(x, y);
 }

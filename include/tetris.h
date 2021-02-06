@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <SDL2/SDL.h>
+#include <random>
 #include "gamestate.h"
 #include "grid.h"
 #include "tetromino.h"
@@ -18,9 +19,10 @@ public:
 private:
 	bool _end;
 	std::unique_ptr<Grid> _grid;
-	void _draw_border(SDL_Renderer *);
 	static Uint32 _gravity_callback(Uint32, void*);
 	SDL_TimerID _timer;
+	std::unique_ptr<Tetromino> _next_tetromino;
+	void _swap_pieces();
 };
 
 #endif

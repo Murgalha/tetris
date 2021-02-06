@@ -7,7 +7,8 @@ const int WINDOW_HEIGHT = 660;
 typedef enum {
 	Right,
 	Left,
-	Down
+	Down,
+	Still
 } Direction;
 
 #endif
