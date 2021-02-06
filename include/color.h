@@ -9,6 +9,8 @@ public:
 	Color(uint8_t, uint8_t, uint8_t, uint8_t);
 	~Color();
 	uint8_t r, g, b, a;
+	bool operator==(const Color &);
+	bool operator!=(const Color &);
 };
 
 #endif

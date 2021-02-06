@@ -9,9 +9,11 @@ Tetromino::Tetromino() {
 Tetromino::Tetromino(TetrominoShape shape) {
 	auto pos = POSITIONS[shape];
 	auto color = Tetromino::gen_color(shape);
-	uint8_t min_x = 255, max_y = 0, max_x = 0;
+	int8_t min_x = 127, max_y = 0, max_x = 0;
 
 	for(auto p : pos) {
+		// insert block on vector and get min and max x,
+		// and max y
 		this->_blocks.push_back(Block(p.first, p.second, color, 28));
 		if(p.first < min_x) {
 			min_x = p.first;
@@ -27,6 +29,7 @@ Tetromino::Tetromino(TetrominoShape shape) {
 	this->_rightmost_position = max_x;
 	this->_leftmost_position = min_x;
 	this->_downmost_position = max_y;
+	this->_must_stop = false;
 }
 
 Tetromino::~Tetromino() {
@@ -42,6 +45,11 @@ void Tetromino::render(SDL_Renderer *renderer, Grid *grid) {
 void Tetromino::check_and_move(Direction d, Grid *g) {
 	if(this->_can_move(d, g)) {
 		this->_move(d);
+	}
+	else {
+		if(d == Down) {
+			this->_must_stop = true;
+		}
 	}
 }
 
@@ -64,16 +72,10 @@ void Tetromino::_move(Direction d) {
 bool Tetromino::_can_move(Direction d, Grid *g) {
 	// check if piece can move on given direction,
 	// inside given grid
-	switch(d) {
-	case Right:
-		return this->_rightmost_position < g->width();
-	case Left:
-		return this->_leftmost_position > g->border();
-	case Down:
-		return this->_downmost_position < g->height();
-	default:
-		return false;
-	}
+	printf("Leftmost: %d\n", this->_leftmost_position);
+	printf("Rightmost: %d\n", this->_rightmost_position);
+	printf("Downmost: %d\n", this->_downmost_position);
+	return g->can_move(*this, d);
 }
 
 void Tetromino::_move_left() {
@@ -99,6 +101,18 @@ void Tetromino::_move_down() {
 	this->_downmost_position++;
 }
 
+bool Tetromino::must_stop() {
+	return this->_must_stop;
+}
+
+std::vector<Block> Tetromino::blocks() {
+	return this->_blocks;
+}
+
+Color Tetromino::color() {
+	return this->_color;
+}
+
 Color Tetromino::gen_color(TetrominoShape shape) {
 	switch(shape) {
 	case I:
@@ -118,4 +132,10 @@ Color Tetromino::gen_color(TetrominoShape shape) {
 	default:
 		return WHITE;
 	}
+}
+
+Tetromino *Tetromino::new_piece() {
+	int random_number = rand() % 7;
+	TetrominoShape shape = (TetrominoShape) random_number;
+	return new Tetromino(shape);
 }
