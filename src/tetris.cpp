@@ -40,6 +40,9 @@ void Tetris::update() {
 					this->_swap_pieces();
 				}
 				break;
+			case SDLK_UP:
+				this->current_tetromino->rotate(this->_grid.get());
+				break;
 			}
 		default:
 			break;

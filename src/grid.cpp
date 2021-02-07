@@ -66,7 +66,6 @@ bool Grid::can_move(Tetromino t, Direction d) {
 		}
 		pos.first += offset.first;
 		pos.second += offset.second;
-		printf("Projected position: (%d, %d)\n", pos.first, pos.second);
 
 		if(pos.second > this->_height ||
 		   pos.first > this->_width ||
