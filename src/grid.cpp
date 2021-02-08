@@ -126,6 +126,7 @@ uint32_t Grid::check_tetris() {
 			points += 10;
 			printf("Updating board...\n");
 			this->_update_board_after_tetris(i);
+			i++;
 		}
 	}
 	return points;
