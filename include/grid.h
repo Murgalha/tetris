@@ -27,9 +27,8 @@ public:
 	uint8_t border() const;
 	std::vector< std::vector<Color> > mat();
 private:
+	void _set_mat();
 	uint8_t _width, _height, _border;
-	void _draw_border(SDL_Renderer *);
-	void _draw_mat(SDL_Renderer *);
 	void _update_board_after_tetris(uint8_t);
 	std::vector< std::vector<Color> > _mat;
 };

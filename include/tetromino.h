@@ -55,17 +55,6 @@ private:
 	uint8_t _box_size;
 };
 
-const Color CYAN = Color(0, 255, 255, 255);
-const Color BLUE = Color(0, 0, 255, 255);
-const Color ORANGE = Color(255, 165, 0, 255);
-const Color YELLOW = Color(255, 255, 0, 255);
-const Color GREEN = Color(0, 255, 0, 255);
-const Color PURPLE = Color(128, 0, 128, 255);
-const Color RED = Color(255, 0, 0, 255);
-const Color BLACK = Color(0, 0, 0, 255);
-const Color WHITE = Color(255, 255, 255, 255);
-const Color GREY = Color(120, 120, 120, 255);
-
 const std::vector< std::vector< std::pair<int8_t, int8_t> > > POSITIONS {
 	// I
 	{

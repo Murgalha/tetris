@@ -12,6 +12,7 @@ class Block;
 class Block {
 public:
 	Block();
+	Block(int);
 	Block(int8_t, int8_t, Color, int);
 	~Block();
 	void render(SDL_Renderer *, Grid *);
@@ -19,6 +20,7 @@ public:
 	void move_right();
 	void move_left();
 	void new_position(int8_t, int8_t);
+	void new_color(Color c);
 	std::pair<int8_t, int8_t> position();
 private:
 	std::pair<int8_t, int8_t> _position;
