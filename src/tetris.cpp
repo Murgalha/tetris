@@ -11,6 +11,7 @@ Tetris::Tetris() {
 	srand(time(NULL));
 	this->current_tetromino = std::unique_ptr<Tetromino>(Tetromino::new_piece());
 	this->_next_tetromino = std::unique_ptr<Tetromino>(Tetromino::new_piece());
+	this->_points = 0;
 }
 
 Tetris::~Tetris() {
@@ -64,6 +65,8 @@ void Tetris::_swap_pieces() {
 	this->current_tetromino.swap(this->_next_tetromino);
 	if(!this->_grid->can_move(*this->current_tetromino, Down))
 		this->_end = true;
+	this->_points += this->_grid->check_tetris();
+	printf("Total current points: %d\n", this->_points);
 	this->_next_tetromino = std::unique_ptr<Tetromino>(Tetromino::new_piece());
 }
 
