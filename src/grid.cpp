@@ -2,9 +2,6 @@
 #include "utils.h"
 #include "block.h"
 
-// TODO: Use the color matrix for everything, including borders.
-// Then, there would not be border checks, just color ones
-
 Grid::Grid(uint8_t w, uint8_t h, uint8_t b) {
 	this->_width = w;
 	this->_height = h;
@@ -113,7 +110,8 @@ void Grid::fix_piece(Tetromino t) {
 uint32_t Grid::check_tetris() {
 	uint32_t points = 0;
 	bool tetris;
-	for(int i = this->_mat.size() - 1 ; i >= 0; i--) {
+	// _mat.size() - 2 to exclude bottom border row
+	for(int i = this->_mat.size() - 2 ; i >= 0; i--) {
 		tetris = true;
 		for(auto color : this->_mat[i]) {
 			if(color == BLACK) {
@@ -122,13 +120,12 @@ uint32_t Grid::check_tetris() {
 			}
 		}
 		if(tetris) {
-			printf("We have a TETRIS!\n");
+			printf("We have a TETRIS! on row %d\n", i);
 			// TODO: Use same ammount of points used in
 			// original tetris
 			points += 10;
 			printf("Updating board...\n");
 			this->_update_board_after_tetris(i);
-			tetris = false;
 		}
 	}
 	return points;
@@ -138,5 +135,8 @@ void Grid::_update_board_after_tetris(uint8_t row) {
 	for(uint8_t i = row; i > 0; i--) {
 		this->_mat[i] = this->_mat[i-1];
 	}
-	this->_mat[0] = std::vector<Color>(this->_width);
+	// Create new row and put grey border on the edges
+	this->_mat[0] = std::vector<Color>(this->_width + 2*this->_border);
+	this->_mat[0][0] = GREY;
+	this->_mat[0][this->_mat[0].size()-1] = GREY;
 }
