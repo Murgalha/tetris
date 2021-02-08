@@ -2,7 +2,7 @@
 #define _UTILS_H_
 
 const int WINDOW_WIDTH = 360;
-const int WINDOW_HEIGHT = 660;
+const int WINDOW_HEIGHT = 630;
 
 typedef enum {
 	Right,

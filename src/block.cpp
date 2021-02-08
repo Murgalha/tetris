@@ -6,6 +6,12 @@ Block::Block() {
 	this->_size = 0;
 }
 
+Block::Block(int size) {
+	this->_position = std::make_pair(0, 0);
+	this->_color;
+	this->_size = size;
+}
+
 Block::Block(int8_t x, int8_t y, Color c, int s) {
 	this->_position = std::make_pair(x, y);
 	this->_color = c;
@@ -64,4 +70,8 @@ void Block::move_left() {
 
 void Block::new_position(int8_t x, int8_t y) {
 	this->_position = std::make_pair(x, y);
+}
+
+void Block::new_color(Color c) {
+	this->_color = c;
 }
