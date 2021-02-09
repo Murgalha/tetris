@@ -32,8 +32,9 @@ void Tetromino::render(SDL_Renderer *renderer, Grid *grid) {
 	}
 }
 
-void Tetromino::check_and_move(Direction d, Grid *g) {
-	if(this->can_move(d, g)) {
+bool Tetromino::check_and_move(Direction d, Grid *g) {
+	bool can_move = this->can_move(d, g);
+	if(can_move) {
 		this->_move(d);
 	}
 	else {
@@ -41,6 +42,7 @@ void Tetromino::check_and_move(Direction d, Grid *g) {
 			this->_must_stop = true;
 		}
 	}
+	return can_move;
 }
 
 void Tetromino::rotate(Grid *g) {

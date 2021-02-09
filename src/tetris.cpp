@@ -44,6 +44,8 @@ void Tetris::update() {
 			case SDLK_UP:
 				this->current_tetromino->rotate(this->_grid.get());
 				break;
+			case SDLK_SPACE:
+				this->_automatic_fall();
 			}
 		default:
 			break;
@@ -68,6 +70,11 @@ void Tetris::_swap_pieces() {
 	this->_points += this->_grid->check_tetris();
 	printf("Total current points: %d\n", this->_points);
 	this->_next_tetromino = std::unique_ptr<Tetromino>(Tetromino::new_piece());
+}
+
+void Tetris::_automatic_fall() {
+	while(this->current_tetromino->check_and_move(Down, this->_grid.get()));
+	this->_swap_pieces();
 }
 
 // TODO: Pass only needed parameters, not whole Tetris *

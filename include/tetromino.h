@@ -27,7 +27,7 @@ public:
 	Tetromino();
 	~Tetromino();
 	void render(SDL_Renderer *, Grid *);
-	void check_and_move(Direction, Grid *);
+	bool check_and_move(Direction, Grid *);
 	bool can_move(Direction, Grid *);
 	bool must_stop();
 	void rotate(Grid *);
