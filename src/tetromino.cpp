@@ -92,36 +92,37 @@ bool Tetromino::maybe_move(Direction d, Grid *g) {
 }
 
 void Tetromino::rotate(Grid *g) {
-	auto possible_new = Tetromino(this->_shape);
-	bool can_rotate = true;
-
-	for(int i = 0; i < this->_blocks.size(); i++) {
-		auto block_pos = this->_blocks[i].position();
-		// move current points to origin base on _pivot
-		auto x_old = block_pos.first - this->_pivot.first;
-		auto y_old = block_pos.second - this->_pivot.second;
-		// set new rotated pieces
-		auto x_new = -y_old + this->_pivot.first;
-		auto y_new = x_old + this->_pivot.second;
-		possible_new.blocks()[i].new_position(x_new, y_new);
-	}
-	// try to place the piece, then try wall kick right
-	// and left
-	if(!g->can_move(*this, Still)) {
-		bool kick_right = possible_new.maybe_move(Right, g);
-		bool kick_left = true;
-		if(!kick_right) {
-			kick_left = possible_new.maybe_move(Left, g);
+	if(this->_shape != O) {
+		auto possible_new = Tetromino(this->_shape);
+		bool can_rotate = true;
+		for(int i = 0; i < this->_blocks.size(); i++) {
+			auto block_pos = this->_blocks[i].position();
+			// move current points to origin base on _pivot
+			auto x_old = block_pos.first - this->_pivot.first;
+			auto y_old = block_pos.second - this->_pivot.second;
+			// set new rotated pieces
+			auto x_new = -y_old + this->_pivot.first;
+			auto y_new = x_old + this->_pivot.second;
+			possible_new.blocks()[i].new_position(x_new, y_new);
 		}
-		if(!kick_left) {
-			can_rotate = false;
+		// try to place the piece, then try wall kick right
+		// and left
+		if(!g->can_move(possible_new, Still)) {
+			bool kick_right = possible_new.maybe_move(Right, g);
+			bool kick_left = true;
+			if(!kick_right) {
+				kick_left = possible_new.maybe_move(Left, g);
+			}
+			if(!kick_left) {
+				can_rotate = false;
+			}
 		}
-	}
-	if(can_rotate) {
-		std::pair<int8_t, int8_t> pos;
-		for(int i = 0; i < possible_new.blocks().size(); i++) {
-			pos = possible_new.blocks()[i].position();
-			this->_blocks[i].new_position(pos.first, pos.second);
+		if(can_rotate) {
+			std::pair<int8_t, int8_t> pos;
+			for(int i = 0; i < possible_new.blocks().size(); i++) {
+				pos = possible_new.blocks()[i].position();
+				this->_blocks[i].new_position(pos.first, pos.second);
+			}
 		}
 	}
 }
