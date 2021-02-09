@@ -9,8 +9,10 @@ Tetris::Tetris() {
 	this->_grid = std::unique_ptr<Grid>(new Grid(10, 20, 1));
 	this->_timer = SDL_AddTimer(1000, this->_gravity_callback, this);
 	srand(time(NULL));
-	this->current_tetromino = std::unique_ptr<Tetromino>(Tetromino::new_piece());
-	this->_next_tetromino = std::unique_ptr<Tetromino>(Tetromino::new_piece());
+	this->current_tetromino =
+		std::unique_ptr<Tetromino>(new Tetromino);
+	this->_next_tetromino =
+		std::unique_ptr<Tetromino>(new Tetromino);
 	this->_points = 0;
 }
 
@@ -24,22 +26,20 @@ void Tetris::update() {
 		switch(e.type) {
 		case SDL_QUIT:
 			this->_end = true;
+			break;
 		case SDL_KEYDOWN:
 			switch(e.key.keysym.sym) {
 			case SDLK_RIGHT:
 				this->current_tetromino->
-					check_and_move(Right, this->_grid.get());
+					maybe_move(Right, this->_grid.get());
 				break;
 			case SDLK_LEFT:
 				this->current_tetromino->
-					check_and_move(Left, this->_grid.get());
+					maybe_move(Left, this->_grid.get());
 				break;
 			case SDLK_DOWN:
 				this->current_tetromino->
-					check_and_move(Down, this->_grid.get());
-				if(this->current_tetromino->must_stop()) {
-					this->_swap_pieces();
-				}
+					maybe_move(Down, this->_grid.get());
 				break;
 			case SDLK_UP:
 				this->current_tetromino->rotate(this->_grid.get());
@@ -47,6 +47,9 @@ void Tetris::update() {
 			case SDLK_SPACE:
 				this->_automatic_fall();
 			}
+			if(this->current_tetromino->must_stop())
+				this->_swap_pieces();
+			break;
 		default:
 			break;
 		}
@@ -65,22 +68,24 @@ bool Tetris::has_ended() {
 void Tetris::_swap_pieces() {
 	this->_grid->fix_piece(*this->current_tetromino);
 	this->current_tetromino.swap(this->_next_tetromino);
-	if(!this->_grid->can_move(*this->current_tetromino, Down))
+	if(!this->current_tetromino->maybe_move(Down, this->_grid.get()))
 		this->_end = true;
 	this->_points += this->_grid->check_tetris();
 	printf("Total current points: %d\n", this->_points);
-	this->_next_tetromino = std::unique_ptr<Tetromino>(Tetromino::new_piece());
+	this->_next_tetromino =
+		std::unique_ptr<Tetromino>(new Tetromino);
 }
 
 void Tetris::_automatic_fall() {
-	while(this->current_tetromino->check_and_move(Down, this->_grid.get()));
+	Grid *g = this->_grid.get();
+	while(this->current_tetromino->maybe_move(Down, g));
 	this->_swap_pieces();
 }
 
 // TODO: Pass only needed parameters, not whole Tetris *
 Uint32 Tetris::_gravity_callback(Uint32 interval, void *param) {
 	auto t = (Tetris *) param;
-	t->current_tetromino->check_and_move(Down, t->_grid.get());
+	t->current_tetromino->maybe_move(Down, t->_grid.get());
 	if(t->current_tetromino->must_stop()) {
 		t->_swap_pieces();
 	}

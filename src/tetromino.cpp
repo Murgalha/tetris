@@ -3,23 +3,63 @@
 #include <cstdio>
 
 Tetromino::Tetromino() {
-
+	int random_number = rand() % NSHAPES;
+	TetrominoShape shape = (TetrominoShape) random_number;
+	this->_set_piece(shape);
 }
 
 Tetromino::Tetromino(TetrominoShape shape) {
+	this->_set_piece(shape);
+}
+
+void Tetromino::_set_piece(TetrominoShape shape) {
 	auto pos = POSITIONS[shape];
-	auto color = Tetromino::gen_color(shape);
+	this->_must_stop = false;
+	this->_shape = shape;
+
+	// Set pivot and color based on shape
+	switch(this->_shape) {
+	case I:
+		this->_pivot = std::make_pair(5, -1);
+		this->_color = CYAN;
+		break;
+	case J:
+		this->_pivot = std::make_pair(6, 0);
+		this->_color = BLUE;
+		break;
+	case L:
+		this->_pivot = std::make_pair(5, 0);
+		this->_color = ORANGE;
+		break;
+	case O:
+		this->_pivot = std::make_pair(6, 0);
+		this->_color = YELLOW;
+		break;
+	case S:
+		this->_pivot = std::make_pair(5, 0);
+		this->_color = GREEN;
+		break;
+	case T:
+		this->_pivot = std::make_pair(5, -1);
+		this->_color = PURPLE;
+		break;
+	case Z:
+		this->_pivot = std::make_pair(5, 0);
+		this->_color = RED;
+		break;
+	default:
+		this->_pivot = std::make_pair(0, 0);
+		this->_color = WHITE;
+		break;
+	}
+
 
 	for(auto p : pos) {
 		// insert block on vector
-		this->_blocks.push_back(Block(p.first, p.second, color, 28));
+		Block b(p.first, p.second, this->_color, 28);
+		this->_blocks.push_back(b);
 	}
-	this->_color = color;
-	this->_must_stop = false;
-	this->_shape = shape;
-	this->_box_size = Tetromino::gen_box_size(this->_shape);
-	this->_update_edges();
-	this->_pivot = Tetromino::gen_pivot(this->_shape);
+
 }
 
 Tetromino::~Tetromino() {
@@ -32,12 +72,18 @@ void Tetromino::render(SDL_Renderer *renderer, Grid *grid) {
 	}
 }
 
-bool Tetromino::check_and_move(Direction d, Grid *g) {
-	bool can_move = this->can_move(d, g);
+bool Tetromino::maybe_move(Direction d, Grid *g) {
+	/*
+	  Check if tetromino can move on given direction
+	  and move it if possible.
+	  Returns true if piece has moved, false otherwise
+	 */
+	bool can_move = g->can_move(*this, d);
 	if(can_move) {
 		this->_move(d);
 	}
 	else {
+		// if can't move down, piece should stop falling
 		if(d == Down) {
 			this->_must_stop = true;
 		}
@@ -51,20 +97,23 @@ void Tetromino::rotate(Grid *g) {
 
 	for(int i = 0; i < this->_blocks.size(); i++) {
 		auto block_pos = this->_blocks[i].position();
+		// move current points to origin base on _pivot
 		auto x_old = block_pos.first - this->_pivot.first;
 		auto y_old = block_pos.second - this->_pivot.second;
+		// set new rotated pieces
 		auto x_new = -y_old + this->_pivot.first;
 		auto y_new = x_old + this->_pivot.second;
 		possible_new.blocks()[i].new_position(x_new, y_new);
 	}
-	if(!possible_new.can_move(Still, g)) {
-		if(possible_new.can_move(Right, g)) {
-			possible_new.check_and_move(Right, g);
+	// try to place the piece, then try wall kick right
+	// and left
+	if(!g->can_move(*this, Still)) {
+		bool kick_right = possible_new.maybe_move(Right, g);
+		bool kick_left = true;
+		if(!kick_right) {
+			kick_left = possible_new.maybe_move(Left, g);
 		}
-		else if(possible_new.can_move(Left, g)) {
-			possible_new.check_and_move(Left, g);
-		}
-		else {
+		if(!kick_left) {
 			can_rotate = false;
 		}
 	}
@@ -74,79 +123,28 @@ void Tetromino::rotate(Grid *g) {
 			pos = possible_new.blocks()[i].position();
 			this->_blocks[i].new_position(pos.first, pos.second);
 		}
-		this->_update_edges();
 	}
-}
-
-void Tetromino::_update_edges() {
-	int8_t min_x = 127, max_y = 0, max_x = 0;
-	for(auto block : this->_blocks) {
-		auto p = block.position();
-		if(p.first < min_x) {
-			min_x = p.first;
-		}
-		else if(p.first > max_x) {
-			max_x = p.first;
-		}
-		if(p.second > max_y) {
-			max_y = p.second;
-		}
-
-	}
-	this->_rightmost_position = max_x;
-	this->_leftmost_position = min_x;
-	this->_downmost_position = max_y;
 }
 
 void Tetromino::_move(Direction d) {
+	std::pair<int8_t, int8_t> offset = std::make_pair(0, 0);
 	switch(d) {
 	case Right:
-		this->_move_right();
+		offset.first = 1;
 		break;
 	case Left:
-		this->_move_left();
+		offset.first = -1;
 		break;
 	case Down:
-		this->_move_down();
+		offset.second = 1;
 		break;
 	default:
 		break;
 	}
-}
-
-bool Tetromino::can_move(Direction d, Grid *g) {
-	// check if piece can move on given direction,
-	// inside given grid
-	printf("Leftmost: %d\n", this->_leftmost_position);
-	printf("Rightmost: %d\n", this->_rightmost_position);
-	printf("Downmost: %d\n", this->_downmost_position);
-	return g->can_move(*this, d);
-}
-
-void Tetromino::_move_left() {
-	for(int i = 0; i < this->_blocks.size(); i++) {
-		this->_blocks[i].move_left();
-	}
-	this->_rightmost_position--;
-	this->_leftmost_position--;
-	this->_pivot.first--;
-}
-
-void Tetromino::_move_right() {
-	for(int i = 0; i < this->_blocks.size(); i++) {
-		this->_blocks[i].move_right();
-	}
-	this->_rightmost_position++;
-	this->_leftmost_position++;
-	this->_pivot.first++;
-}
-
-void Tetromino::_move_down() {
-	for(int i = 0; i < this->_blocks.size(); i++) {
-		this->_blocks[i].move_down();
-	}
-	this->_downmost_position++;
-	this->_pivot.second++;
+	for(int i = 0; i < this->_blocks.size(); i++)
+		this->_blocks[i].translate(offset.first, offset.second);
+	this->_pivot.first += offset.first;
+	this->_pivot.second += offset.second;
 }
 
 bool Tetromino::must_stop() {
@@ -159,69 +157,4 @@ std::vector<Block> &Tetromino::blocks() {
 
 Color &Tetromino::color() {
 	return this->_color;
-}
-
-Color Tetromino::gen_color(TetrominoShape shape) {
-	switch(shape) {
-	case I:
-		return CYAN;
-	case J:
-		return BLUE;
-	case L:
-		return ORANGE;
-	case O:
-		return YELLOW;
-	case S:
-		return GREEN;
-	case T:
-		return PURPLE;
-	case Z:
-		return RED;
-	default:
-		return WHITE;
-	}
-}
-
-uint8_t Tetromino::gen_box_size(TetrominoShape shape) {
-	switch(shape) {
-	case I:
-		return 4;
-	case J:
-	case L:
-	case S:
-	case T:
-	case Z:
-		return 3;
-	case O:
-		return 2;
-	default:
-		return 0;
-	}
-}
-
-std::pair<int8_t, int8_t> Tetromino::gen_pivot(TetrominoShape shape) {
-	switch(shape) {
-	case I:
-		return std::make_pair(5, -1);
-	case J:
-		return std::make_pair(6, 0);
-	case L:
-		return std::make_pair(5, 0);
-	case O:
-		return std::make_pair(6, 0);
-	case S:
-		return std::make_pair(5, 0);
-	case T:
-		return std::make_pair(5, -1);
-	case Z:
-		return std::make_pair(5, 0);
-	default:
-		return std::make_pair(0, 0);
-	}
-}
-
-Tetromino *Tetromino::new_piece() {
-	int random_number = rand() % 7;
-	TetrominoShape shape = (TetrominoShape) random_number;
-	return new Tetromino(shape);
 }
