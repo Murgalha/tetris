@@ -56,16 +56,9 @@ void Block::render(SDL_Renderer *renderer, Grid *grid) {
                            old_color.a);
 }
 
-void Block::move_down() {
-	this->_position.second += 1;
-}
-
-void Block::move_right() {
-	this->_position.first += 1;
-}
-
-void Block::move_left() {
-	this->_position.first -= 1;
+void Block::translate(int8_t x, int8_t y) {
+	this->_position.first += x;
+	this->_position.second += y;
 }
 
 void Block::new_position(int8_t x, int8_t y) {
