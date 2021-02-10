@@ -26,7 +26,7 @@ std::pair<int8_t, int8_t> Block::position() {
 	return this->_position;
 }
 
-void Block::render(SDL_Renderer *renderer, Grid *grid) {
+void Block::render(SDL_Renderer *renderer, Grid *grid, bool outline) {
 	auto pos = this->_position;
 	auto pixels = grid->to_pixels(pos.first, pos.second);
 	Color old_color;
@@ -47,7 +47,11 @@ void Block::render(SDL_Renderer *renderer, Grid *grid) {
 	r.x = pixels.first;
 	r.y = pixels.second;
 	r.w = r.h = this->_size;
-	SDL_RenderFillRect(renderer, &r);
+
+	if(outline)
+		SDL_RenderDrawRect(renderer, &r);
+	else
+		SDL_RenderFillRect(renderer, &r);
 
 	SDL_SetRenderDrawColor(renderer,
                            old_color.r,

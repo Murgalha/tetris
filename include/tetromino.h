@@ -26,7 +26,7 @@ public:
 	Tetromino();
 	Tetromino(TetrominoShape);
 	~Tetromino();
-	void render(SDL_Renderer *, Grid *);
+	void render(SDL_Renderer *, Grid *, bool outline = false);
 	// mechanics functions
 	bool maybe_move(Direction, Grid *);
 	bool must_stop();
@@ -34,6 +34,7 @@ public:
 	// getters
 	std::vector<Block> &blocks();
 	Color &color();
+	TetrominoShape shape() const;
 private:
 	void _set_piece(TetrominoShape);
 	void _move(Direction);
