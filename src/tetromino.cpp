@@ -66,9 +66,9 @@ Tetromino::~Tetromino() {
 
 }
 
-void Tetromino::render(SDL_Renderer *renderer, Grid *grid) {
+void Tetromino::render(SDL_Renderer *renderer, Grid *grid, bool outline) {
 	for(auto block : this->_blocks) {
-		block.render(renderer, grid);
+		block.render(renderer, grid, outline);
 	}
 }
 
@@ -157,4 +157,8 @@ std::vector<Block> &Tetromino::blocks() {
 
 Color &Tetromino::color() {
 	return this->_color;
+}
+
+TetrominoShape Tetromino::shape() const {
+	return this->_shape;
 }

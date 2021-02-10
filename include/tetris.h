@@ -22,6 +22,9 @@ private:
 	static Uint32 _gravity_callback(Uint32, void*);
 	SDL_TimerID _timer;
 	std::unique_ptr<Tetromino> _next_tetromino;
+	std::unique_ptr<Tetromino> _projection;
+	void _update_projection();
+	void _create_projection();
 	void _swap_pieces();
 	void _automatic_fall();
 	uint32_t _points;

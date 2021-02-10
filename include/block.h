@@ -15,7 +15,7 @@ public:
 	Block(int);
 	Block(int8_t, int8_t, Color, int);
 	~Block();
-	void render(SDL_Renderer *, Grid *);
+	void render(SDL_Renderer *, Grid *, bool=false);
 	void new_position(int8_t, int8_t);
 	void translate(int8_t, int8_t);
 	void new_color(Color c);
