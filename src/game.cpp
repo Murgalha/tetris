@@ -11,7 +11,7 @@ Game::Game(GameState *gs) {
 		exit(1);
 	}
 
-	w = SDL_CreateWindow("Game",
+	w = SDL_CreateWindow("Tetris",
 						 SDL_WINDOWPOS_CENTERED,
 						 SDL_WINDOWPOS_CENTERED,
 						 WINDOW_WIDTH,
