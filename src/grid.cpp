@@ -45,12 +45,12 @@ std::pair<int, int> Grid::to_pixels(int8_t x, int8_t y) const {
 }
 
 int Grid::to_pixels_x(int8_t x) const {
-	int w_step = WINDOW_WIDTH / this->_mat[0].size();
+	int w_step = GRID_WIDTH / this->_mat[0].size();
 	return w_step * x;
 }
 
 int Grid::to_pixels_y(int8_t y) const {
-	int h_step = WINDOW_HEIGHT / this->_mat.size();
+	int h_step = GRID_HEIGHT / this->_mat.size();
 	return h_step * y;
 }
 

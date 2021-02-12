@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstdio>
 #include <ctime>
 #include "tetris.h"
 #include "block.h"
@@ -13,14 +14,27 @@ Tetris::Tetris() {
 		std::unique_ptr<Tetromino>(new Tetromino);
 	this->_next_tetromino =
 		std::unique_ptr<Tetromino>(new Tetromino);
+	// @Hardcode: Make move 'to next' and 'from next' functions
+	// to avoid hardcoding the translation
 
+	// @Visual: Translate +2y for I-shape and -1x for O-shape
+	// tetrominos so they align with the 'Next' text
+	this->_next_tetromino->translate(9, 3);
 	this->_create_projection();
 	this->_update_projection();
 	this->_points = 0;
+
+	TTF_Init();
+	this->_font = TTF_OpenFont("./fonts/Hack-Regular.ttf", 16);
+	if(!this->_font) {
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		exit(1);
+	}
+
 }
 
 Tetris::~Tetris() {
-
+	TTF_Quit();
 }
 
 void Tetris::update() {
@@ -73,7 +87,10 @@ void Tetris::update() {
 void Tetris::render(SDL_Renderer *renderer) {
 	this->_grid->render(renderer);
 	this->current_tetromino->render(renderer, this->_grid.get());
+	this->_next_tetromino->render(renderer, this->_grid.get());
 	this->_projection->render(renderer, this->_grid.get(), true);
+	this->_render_info(renderer);
+
 }
 
 bool Tetris::has_ended() {
@@ -83,6 +100,7 @@ bool Tetris::has_ended() {
 void Tetris::_swap_pieces() {
 	this->_grid->fix_piece(*this->current_tetromino);
 	this->current_tetromino.swap(this->_next_tetromino);
+	this->current_tetromino->translate(-9, -3);
 	// Check end game
 	// if newly placed piece cannot move
 	if(!this->current_tetromino->maybe_move(Down, this->_grid.get()))
@@ -94,6 +112,7 @@ void Tetris::_swap_pieces() {
 	this->_update_projection();
 	this->_next_tetromino =
 		std::unique_ptr<Tetromino>(new Tetromino);
+	this->_next_tetromino->translate(9, 3);
 }
 
 void Tetris::_create_projection() {
@@ -116,6 +135,50 @@ void Tetris::_automatic_fall() {
 	Grid *g = this->_grid.get();
 	while(this->current_tetromino->maybe_move(Down, g));
 	this->_swap_pieces();
+}
+
+// @Speed: Avoid creating texture and surface everyframe
+// @Hardcode: Make this function receive SDL_Texture and SDL_Rect,
+// then draw stuff using arguments, not hardcode as it is
+void Tetris::_render_info(SDL_Renderer *renderer) {
+	SDL_Color White = {255, 255, 255};
+	SDL_Surface *surfaceMessage = NULL;
+	SDL_Rect Message_rect;
+
+	// Drawing 'Next'
+	surfaceMessage = TTF_RenderText_Solid(this->_font, "Next", White);
+	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+	Message_rect.x = INFO_BEGIN_X + 30;
+	Message_rect.y = INFO_BEGIN_Y;
+	Message_rect.w = 80;
+	Message_rect.h = 50;
+
+	SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+	SDL_FreeSurface(surfaceMessage);
+	SDL_DestroyTexture(Message);
+
+	// Drawing 'Points'
+	surfaceMessage = TTF_RenderText_Solid(this->_font, "Points", White);
+	Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+	Message_rect.y += 200;
+	SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+
+	SDL_FreeSurface(surfaceMessage);
+	SDL_DestroyTexture(Message);
+
+	char points[256];
+	snprintf(points, 255, "%d", this->_points);
+
+	// Drawing the actual number of points
+	surfaceMessage = TTF_RenderText_Solid(this->_font, points, White);
+	Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+	Message_rect.y += 50;
+	Message_rect.w = 30;
+	SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+
+	SDL_FreeSurface(surfaceMessage);
+	SDL_DestroyTexture(Message);
 }
 
 // TODO: Pass only needed parameters, not whole Tetris *

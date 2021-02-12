@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <random>
 #include "gamestate.h"
 #include "grid.h"
@@ -27,7 +28,9 @@ private:
 	void _create_projection();
 	void _swap_pieces();
 	void _automatic_fall();
+	void _render_info(SDL_Renderer *);
 	uint32_t _points;
+	TTF_Font *_font;
 };
 
 #endif

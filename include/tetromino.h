@@ -31,6 +31,7 @@ public:
 	bool maybe_move(Direction, Grid *);
 	bool must_stop();
 	void rotate(Grid *);
+	void translate(int8_t, int8_t);
 	// getters
 	std::vector<Block> &blocks();
 	Color &color();

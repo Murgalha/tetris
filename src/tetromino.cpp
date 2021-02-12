@@ -55,7 +55,7 @@ void Tetromino::_set_piece(TetrominoShape shape) {
 
 
 	for(auto p : pos) {
-		// insert block on vector
+		// Insert block on vector
 		Block b(p.first, p.second, this->_color, 28);
 		this->_blocks.push_back(b);
 	}
@@ -124,6 +124,13 @@ void Tetromino::rotate(Grid *g) {
 				this->_blocks[i].new_position(pos.first, pos.second);
 			}
 		}
+	}
+}
+
+void Tetromino::translate(int8_t x, int8_t y) {
+	// translate each block
+	for(int i = 0; i < this->_blocks.size(); i++) {
+		this->_blocks[i].translate(x, y);
 	}
 }
 
