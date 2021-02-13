@@ -14,18 +14,13 @@ Tetris::Tetris() {
 		std::unique_ptr<Tetromino>(new Tetromino);
 	this->_next_tetromino =
 		std::unique_ptr<Tetromino>(new Tetromino);
-	// @Hardcode: Make move 'to next' and 'from next' functions
-	// to avoid hardcoding the translation
-
-	// @Visual: Translate +2y for I-shape and -1x for O-shape
-	// tetrominos so they align with the 'Next' text
-	this->_next_tetromino->translate(9, 3);
+	this->_move_to_next();
 	this->_create_projection();
 	this->_update_projection();
 	this->_points = 0;
 
 	TTF_Init();
-	this->_font = TTF_OpenFont("./fonts/Hack-Regular.ttf", 16);
+	this->_font = TTF_OpenFont("./fonts/joystix monospace.ttf", 16);
 	if(!this->_font) {
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		exit(1);
@@ -99,8 +94,8 @@ bool Tetris::has_ended() {
 
 void Tetris::_swap_pieces() {
 	this->_grid->fix_piece(*this->current_tetromino);
+	this->_move_from_next();
 	this->current_tetromino.swap(this->_next_tetromino);
-	this->current_tetromino->translate(-9, -3);
 	// Check end game
 	// if newly placed piece cannot move
 	if(!this->current_tetromino->maybe_move(Down, this->_grid.get()))
@@ -112,8 +107,53 @@ void Tetris::_swap_pieces() {
 	this->_update_projection();
 	this->_next_tetromino =
 		std::unique_ptr<Tetromino>(new Tetromino);
-	this->_next_tetromino->translate(9, 3);
+	this->_move_to_next();
 }
+
+void Tetris::_move_to_next() {
+	std::pair<int8_t, int8_t> offset = std::make_pair(9, 3);
+	switch(this->_next_tetromino->shape()) {
+	case I:
+		offset.second += 2;
+		break;
+	case O:
+		offset.first -= 1;
+		break;
+	case L:
+		offset.second += 1;
+		break;
+	case J:
+		offset.second += 1;
+		offset.first -= 1;
+		break;
+	default:
+		break;
+	}
+	this->_next_tetromino->translate(offset.first, offset.second);
+}
+
+void Tetris::_move_from_next() {
+	std::pair<int8_t, int8_t> offset = std::make_pair(-9, -3);
+	switch(this->_next_tetromino->shape()) {
+	case I:
+		offset.second -= 2;
+		break;
+	case O:
+		offset.first += 1;
+		break;
+	case L:
+		offset.second -= 1;
+		break;
+	case J:
+		offset.second -= 1;
+		offset.first += 1;
+		break;
+	default:
+		break;
+	}
+	this->_next_tetromino->translate(offset.first, offset.second);
+}
+
 
 void Tetris::_create_projection() {
 	Tetromino *current = this->current_tetromino.get();
@@ -151,7 +191,7 @@ void Tetris::_render_info(SDL_Renderer *renderer) {
 
 	Message_rect.x = INFO_BEGIN_X + 30;
 	Message_rect.y = INFO_BEGIN_Y;
-	Message_rect.w = 80;
+	Message_rect.w = 90;
 	Message_rect.h = 50;
 
 	SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
@@ -174,6 +214,8 @@ void Tetris::_render_info(SDL_Renderer *renderer) {
 	surfaceMessage = TTF_RenderText_Solid(this->_font, points, White);
 	Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 	Message_rect.y += 50;
+	Message_rect.x += 30;
+	Message_rect.h -= 5;
 	Message_rect.w = 30;
 	SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
 
