@@ -27,6 +27,8 @@ private:
 	void _update_projection();
 	void _create_projection();
 	void _swap_pieces();
+	void _move_to_next();
+	void _move_from_next();
 	void _automatic_fall();
 	void _render_info(SDL_Renderer *);
 	uint32_t _points;
